@@ -14,7 +14,7 @@ export function getSupabase(): SupabaseClient {
   return _supabase;
 }
 
-// Kept for backward compatibility — pages that import `supabase` directly
+// Backward-compatible export — pages that import `supabase` directly
 export const supabase = new Proxy({} as SupabaseClient, {
   get(_target, prop) {
     return (getSupabase() as unknown as Record<string | symbol, unknown>)[prop];
