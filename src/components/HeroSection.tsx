@@ -34,7 +34,7 @@ export default function HeroSection() {
           {/* Subtitle */}
           <p className="animate-fade-in-up [animation-delay:200ms] text-lg md:text-xl text-muted leading-relaxed mb-10 max-w-2xl mx-auto">
             Voluntariat, evenimente, workshopuri, competiții și tabere — toate într-un singur loc.
-            Agregăm <strong className="text-foreground">35 oportunități</strong> din zeci de surse verificate.
+            Descoperă <strong className="text-foreground">peste 100 de oportunități</strong> din zeci de surse verificate.
           </p>
 
           {/* Search bar */}

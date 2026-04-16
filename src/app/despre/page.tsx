@@ -151,7 +151,7 @@ export default function DesprePage() {
             <h2 className="text-xl font-semibold mb-3">Tehnologie</h2>
             <p>
               DirecțiaTa este construită cu Next.js, React și Tailwind CSS.
-              Datele sunt agregate din surse publice din România și UE. Platforma
+              Datele sunt colectate din surse publice din România și UE. Platforma
               este optimizată pentru viteză și funcționează excelent pe telefon.
             </p>
           </section>

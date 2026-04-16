@@ -3,13 +3,13 @@ import { Users, Calendar, Building2, TrendingUp } from "lucide-react";
 const stats = [
   {
     icon: Calendar,
-    value: "35",
+    value: "100+",
     label: "Oportunități listate",
     color: "text-primary",
   },
   {
     icon: Building2,
-    value: "23",
+    value: "60+",
     label: "Organizații verificate",
     color: "text-secondary",
   },
