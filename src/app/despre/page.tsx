@@ -7,6 +7,12 @@ import {
   Users,
   Shield,
 } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Despre noi",
+  description: "Cine suntem, ce facem și de ce am creat DirecțiaTa — platforma națională de oportunități pentru tineri.",
+};
 
 export default function DesprePage() {
   return (
@@ -153,6 +159,18 @@ export default function DesprePage() {
               DirecțiaTa este construită cu Next.js, React și Tailwind CSS.
               Datele sunt colectate din surse publice din România și UE. Platforma
               este optimizată pentru viteză și funcționează excelent pe telefon.
+            </p>
+            <p className="mt-3">
+              DirecțiaTa este un proiect dezvoltat de{" "}
+              <a
+                href="https://techlayer.ro"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                TECHLAYER SOFTWARE SRL
+              </a>
+              .
             </p>
           </section>
 

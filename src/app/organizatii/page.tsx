@@ -7,6 +7,12 @@ import {
   Users,
   Megaphone,
 } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Pentru organizații",
+  description: "Promovează gratuit oportunitățile organizației tale pe DirecțiaTa — platforma de voluntariat pentru tineri.",
+};
 
 const benefits = [
   {

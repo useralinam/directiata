@@ -1,5 +1,11 @@
 import Link from "next/link";
 import { ArrowLeft, FileText } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Termeni și condiții",
+  description: "Termenii și condițiile de utilizare a platformei DirecțiaTa.",
+};
 
 export default function TermeniPage() {
   return (
@@ -31,6 +37,11 @@ export default function TermeniPage() {
               centralizează informații din surse publice verificate despre
               programe de voluntariat, evenimente, workshopuri, competiții,
               tabere și burse.
+            </p>
+            <p className="mt-3">
+              Platforma este operată de{" "}
+              <strong>TECHLAYER SOFTWARE SRL</strong>, CUI 50975494, cu sediul
+              în Calea Grivitei 214, București, Sector 1, România.
             </p>
           </section>
 
@@ -116,13 +127,26 @@ export default function TermeniPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mb-3">9. Contact</h2>
+            <h2 className="text-xl font-semibold mb-3">9. Operator</h2>
+            <p className="mb-2">
+              Platforma DirecțiaTa este operată de:
+            </p>
+            <ul className="list-none space-y-1 text-sm">
+              <li><strong>TECHLAYER SOFTWARE SRL</strong></li>
+              <li>CUI: 50975494</li>
+              <li>Sediu: Calea Grivitei 214, București, Sector 1, România</li>
+              <li>E-mail: contact@directia-ta.ro</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold mb-3">10. Contact</h2>
             <p>
               Pentru întrebări despre acești termeni, ne poți contacta pe{" "}
               <Link href="/contact" className="text-primary hover:underline">
                 pagina de contact
-              </Link>
-              .
+              </Link>{" "}
+              sau la adresa contact@directia-ta.ro.
             </p>
           </section>
         </div>

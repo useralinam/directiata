@@ -119,10 +119,17 @@ export default function ContactPage() {
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-secondary mt-0.5" />
                 <div>
-                  <p className="font-medium text-sm">Locație</p>
-                  <p className="text-sm text-muted">București, România</p>
+                  <p className="font-medium text-sm">Adresă</p>
+                  <p className="text-sm text-muted">Calea Grivitei 214, București, Sector 1</p>
                 </div>
               </div>
+            </div>
+
+            <div className="bg-surface rounded-xl border border-border p-5">
+              <h3 className="font-semibold text-sm mb-2">Operator</h3>
+              <p className="text-sm text-muted leading-relaxed">
+                TECHLAYER SOFTWARE SRL · CUI 50975494
+              </p>
             </div>
 
             <div className="bg-primary/5 rounded-xl border border-primary/20 p-5">

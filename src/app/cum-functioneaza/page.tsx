@@ -1,5 +1,11 @@
 import Link from "next/link";
 import { ArrowLeft, Search, Filter, ExternalLink, Star } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Cum funcționează",
+  description: "Află cum folosești DirecțiaTa pentru a descoperi oportunități de voluntariat, evenimente și burse.",
+};
 
 const steps = [
   {

@@ -70,7 +70,15 @@ export default function Footer() {
             © {new Date().getFullYear()} DirecțiaTa. Toate drepturile rezervate.
           </p>
           <p className="text-xs text-muted flex items-center gap-1">
-            Făcut cu <Heart className="w-3 h-3 text-secondary fill-secondary" /> pentru tinerii din România
+            Făcut cu <Heart className="w-3 h-3 text-secondary fill-secondary" /> pentru tinerii din România ·{" "}
+            <a
+              href="https://techlayer.ro"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors"
+            >
+              Un proiect TechLayer
+            </a>
           </p>
         </div>
       </div>

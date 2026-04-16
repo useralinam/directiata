@@ -816,13 +816,13 @@ export const dataSources: DataSource[] = [
     category: ["burse"],
     type: "scraping",
     description: "Burse de studii din Romania si internationale",
-    isActive: true,
-    opportunityCount: 120,
+    isActive: false,
+    opportunityCount: 0,
   },
   {
     id: "fundatia-comunitara",
-    name: "Fundatia pentru Comunitate",
-    url: "https://fundatiacomunitara.ro",
+    name: "Fundația Comunitară București",
+    url: "https://fundatiacomunitarabucuresti.ro",
     category: ["burse"],
     type: "scraping",
     description: "Granturi si finantari pentru proiecte de tineri",
@@ -1084,7 +1084,7 @@ export const dataSources: DataSource[] = [
   {
     id: "frds",
     name: "FRDS - Fondul Român de Dezvoltare Socială",
-    url: "https://www.frfrds.ro",
+    url: "https://frds.ro",
     category: ["burse", "workshopuri"],
     type: "scraping",
     description:
@@ -1108,7 +1108,7 @@ export const dataSources: DataSource[] = [
   {
     id: "daruieste-viata",
     name: "Dăruiește Viață",
-    url: "https://www.daruiesteviata.ro",
+    url: "https://daruiesteviata.ro",
     category: ["voluntariat"],
     type: "scraping",
     description:

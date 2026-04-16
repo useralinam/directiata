@@ -1,5 +1,11 @@
 import Link from "next/link";
 import { Cookie, Shield, BarChart3, Settings, ArrowLeft } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Politica cookies",
+  description: "Ce cookie-uri folosește DirecțiaTa și cum le poți gestiona.",
+};
 
 export default function CookiesPage() {
   return (

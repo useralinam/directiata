@@ -1,5 +1,11 @@
 import Link from "next/link";
 import { ArrowLeft, Lock, Eye, Database, UserCheck, Trash2 } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Politica de confidențialitate",
+  description: "Cum protejăm datele tale pe DirecțiaTa. Nu colectăm date personale, nu avem conturi de utilizator.",
+};
 
 export default function ConfidentialitatePage() {
   return (
@@ -22,6 +28,16 @@ export default function ConfidentialitatePage() {
         </p>
 
         <div className="space-y-8 text-text leading-relaxed">
+          <section>
+            <h2 className="text-xl font-semibold mb-3">Operator de date</h2>
+            <p className="mb-3">
+              Operatorul platformei DirecțiaTa este{" "}
+              <strong>TECHLAYER SOFTWARE SRL</strong>, CUI 50975494, cu sediul
+              în Calea Grivitei 214, București, Sector 1, România. Contact:{" "}
+              contact@directia-ta.ro.
+            </p>
+          </section>
+
           <section>
             <h2 className="text-xl font-semibold mb-3">Angajamentul nostru</h2>
             <p>
@@ -133,7 +149,8 @@ export default function ConfidentialitatePage() {
           <section>
             <h2 className="text-xl font-semibold mb-3">Contact</h2>
             <p>
-              Pentru întrebări legate de confidențialitate, ne poți scrie pe{" "}
+              Pentru întrebări legate de confidențialitate, ne poți scrie la{" "}
+              contact@directia-ta.ro sau pe{" "}
               <Link href="/contact" className="text-primary hover:underline">
                 pagina de contact
               </Link>

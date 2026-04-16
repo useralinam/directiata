@@ -1,5 +1,11 @@
 import Link from "next/link";
 import { ArrowLeft, BookOpen, Calendar } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Blog",
+  description: "Ghiduri, sfaturi și inspirație pentru tineri: voluntariat, oportunități europene, dezvoltare personală.",
+};
 
 const articles = [
   {
