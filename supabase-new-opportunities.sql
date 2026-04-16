@@ -11,7 +11,7 @@ ON opportunities (url);
 -- Cleanup duplicatelor (dacă există)
 DELETE FROM opportunities
 WHERE id NOT IN (
-  SELECT MIN(id) FROM opportunities GROUP BY url
+  SELECT (array_agg(id ORDER BY created_at ASC))[1] FROM opportunities GROUP BY url
 );
 
 -- =============================================================
