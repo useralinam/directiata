@@ -3,8 +3,8 @@
 -- Rulează acest SQL în Supabase SQL Editor
 -- ================================================
 
--- 1. Creează tabelul
-CREATE TABLE opportunities (
+-- 1. Creează tabelul (doar dacă nu există deja)
+CREATE TABLE IF NOT EXISTS opportunities (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
   description TEXT NOT NULL,
@@ -28,23 +28,38 @@ CREATE TABLE opportunities (
 -- 2. Activează RLS (Row Level Security)
 ALTER TABLE opportunities ENABLE ROW LEVEL SECURITY;
 
--- 3. Permite CITIRE publică (toți vizitatorii văd oportunitățile aprobate)
-CREATE POLICY "Public read approved opportunities"
-  ON opportunities FOR SELECT
-  USING (status = 'approved');
+-- 3. Permite CITIRE publică (doar dacă policy-ul nu există deja)
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'opportunities' AND policyname = 'Public read approved opportunities') THEN
+    CREATE POLICY "Public read approved opportunities"
+      ON opportunities FOR SELECT
+      USING (status = 'approved');
+  END IF;
+END $$;
 
--- 4. Permite INSERT public (oricine poate propune o oportunitate)
-CREATE POLICY "Public insert opportunities"
-  ON opportunities FOR INSERT
-  WITH CHECK (true);
+-- 4. Permite INSERT public (doar dacă policy-ul nu există deja)
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'opportunities' AND policyname = 'Public insert opportunities') THEN
+    CREATE POLICY "Public insert opportunities"
+      ON opportunities FOR INSERT
+      WITH CHECK (true);
+  END IF;
+END $$;
 
--- 5. Index pentru performanță
-CREATE INDEX idx_opportunities_category ON opportunities (category);
-CREATE INDEX idx_opportunities_status ON opportunities (status);
-CREATE INDEX idx_opportunities_created_at ON opportunities (created_at DESC);
+-- 5. Index pentru performanță (doar dacă nu există deja)
+CREATE INDEX IF NOT EXISTS idx_opportunities_category ON opportunities (category);
+CREATE INDEX IF NOT EXISTS idx_opportunities_status ON opportunities (status);
+CREATE INDEX IF NOT EXISTS idx_opportunities_created_at ON opportunities (created_at DESC);
+
+-- 6. Unique index pe URL (necesar pentru ON CONFLICT)
+DROP INDEX IF EXISTS idx_opportunities_url_unique;
+DELETE FROM opportunities a USING opportunities b
+  WHERE a.id > b.id AND a.url = b.url AND a.url IS NOT NULL;
+CREATE UNIQUE INDEX idx_opportunities_url_unique ON opportunities(url);
 
 -- ================================================
 -- SEED: Importă cele 35 de oportunități existente
+-- (dacă există deja, nu se adaugă din nou)
 -- ================================================
 
 INSERT INTO opportunities (title, description, category, organization, location, date, deadline, age_range, tags, is_free, price, url, source, difficulty, status, created_at) VALUES
@@ -116,4 +131,5 @@ INSERT INTO opportunities (title, description, category, organization, location,
 
 ('Erasmus+ -- Finantare Proiecte de Tineret 2026', 'Buget total UE de peste 14 miliarde euro. Romania a primit ~78 milioane euro/an pentru proiecte. Mobilitati, parteneriate strategice si dialog structurat pentru tineri. Aplicatii prin intermediul ANPCDEFP.', 'burse', 'ANPCDEFP / Erasmus+', 'Romania + International', 'Apeluri 2026 deschise', NULL, '16-30 ani', ARRAY['Erasmus+', 'finantare', 'proiecte', 'international'], true, NULL, 'https://www.anpcdefp.ro/erasmusplus/', 'anpcdefp.ro', 'mediu', 'approved', '2026-01-01'),
 
-('Fundatia Calea Victoriei -- Burse pentru Elevi si Studenti', 'Burse educationale pentru elevi si studenti oferite de Fundatia Calea Victoriei. Acces la cursuri de arta, cultura, gandire critica, debate si dezvoltare personala. Candidaturile se depun pe site.', 'burse', 'Fundatia Calea Victoriei', 'Bucuresti (Bd. Dacia 78) + Online', 'Inscrieri periodice -- vezi site', NULL, '14-25 ani', ARRAY['bursa', 'educatie', 'cultura', 'dezvoltare'], true, NULL, 'https://www.fundatiacaleavictoriei.ro/burse/', 'fundatiacaleavictoriei.ro', 'mediu', 'approved', '2026-04-10');
+('Fundatia Calea Victoriei -- Burse pentru Elevi si Studenti', 'Burse educationale pentru elevi si studenti oferite de Fundatia Calea Victoriei. Acces la cursuri de arta, cultura, gandire critica, debate si dezvoltare personala. Candidaturile se depun pe site.', 'burse', 'Fundatia Calea Victoriei', 'Bucuresti (Bd. Dacia 78) + Online', 'Inscrieri periodice -- vezi site', NULL, '14-25 ani', ARRAY['bursa', 'educatie', 'cultura', 'dezvoltare'], true, NULL, 'https://www.fundatiacaleavictoriei.ro/burse/', 'fundatiacaleavictoriei.ro', 'mediu', 'approved', '2026-04-10')
+ON CONFLICT (url) DO NOTHING;
