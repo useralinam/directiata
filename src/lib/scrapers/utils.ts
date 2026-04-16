@@ -140,3 +140,54 @@ export function truncate(text: string, max: number): string {
 export function cleanText(text: string): string {
   return text.replace(/\s+/g, " ").trim();
 }
+
+/** Enabled source row from scraper_sources table */
+export interface ScraperSourceRow {
+  source_id: string;
+  enabled: boolean;
+  priority: string;
+  scrape_interval_hours: number;
+  last_scraped_at: string | null;
+  last_status: string | null;
+}
+
+/**
+ * Get all scraper source configs from the DB.
+ * Returns empty array if table doesn't exist yet (graceful fallback).
+ */
+export async function getEnabledSources(): Promise<ScraperSourceRow[]> {
+  const { data, error } = await supabase
+    .from("scraper_sources")
+    .select("source_id, enabled, priority, scrape_interval_hours, last_scraped_at, last_status");
+
+  if (error) {
+    // Table might not exist yet — run all scrapers by default
+    console.warn("Could not fetch scraper_sources:", error.message);
+    return [];
+  }
+
+  return (data || []) as ScraperSourceRow[];
+}
+
+/**
+ * Update a source's status after a scraper run.
+ */
+export async function updateSourceStatus(
+  sourceId: string,
+  status: {
+    last_scraped_at: string;
+    last_status: string;
+    last_error: string | null;
+    total_found: number;
+    total_inserted: number;
+  }
+): Promise<void> {
+  const { error } = await supabase
+    .from("scraper_sources")
+    .update({ ...status, updated_at: new Date().toISOString() })
+    .eq("source_id", sourceId);
+
+  if (error) {
+    console.warn(`Could not update source status for ${sourceId}:`, error.message);
+  }
+}

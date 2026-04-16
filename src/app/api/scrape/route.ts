@@ -5,6 +5,8 @@ import {
   getExistingUrls,
   insertScrapedOpportunities,
   logScraperRun,
+  getEnabledSources,
+  updateSourceStatus,
 } from "@/lib/scrapers/utils";
 
 /**
@@ -38,7 +40,24 @@ export async function POST(request: Request) {
   // Get existing URLs once for deduplication across all scrapers
   const existingUrls = await getExistingUrls();
 
-  for (const scraper of allScrapers) {
+  // Get enabled sources from DB; filter scrapers that are due for a run
+  const enabledSources = await getEnabledSources();
+  const scrapersToRun = allScrapers.filter((scraper) => {
+    const source = enabledSources.find((s) => s.source_id === scraper.sourceId);
+    if (!source) return true; // no DB row yet = run by default
+    if (!source.enabled) return false;
+
+    // Check if enough time has passed since last scrape
+    if (source.last_scraped_at) {
+      const hoursSinceLast =
+        (Date.now() - new Date(source.last_scraped_at).getTime()) / 3_600_000;
+      if (hoursSinceLast < source.scrape_interval_hours) return false;
+    }
+
+    return true;
+  });
+
+  for (const scraper of scrapersToRun) {
     const scraperStart = Date.now();
     const result: ScraperResult = {
       source: scraper.name,
@@ -72,6 +91,15 @@ export async function POST(request: Request) {
 
     result.durationMs = Date.now() - scraperStart;
     results.push(result);
+
+    // Update source status in DB
+    await updateSourceStatus(scraper.sourceId, {
+      last_scraped_at: new Date().toISOString(),
+      last_status: result.errors.length > 0 ? "error" : "success",
+      last_error: result.errors.length > 0 ? result.errors.join("; ") : null,
+      total_found: result.found,
+      total_inserted: result.inserted,
+    });
   }
 
   // Log the entire run to Supabase
@@ -97,13 +125,25 @@ export async function POST(request: Request) {
  * Does NOT run the scrapers (use POST for that).
  */
 export async function GET() {
+  const enabledSources = await getEnabledSources();
   return NextResponse.json({
     endpoint: "/api/scrape",
     method: "POST",
     description:
       "Runs all scrapers, deduplicates, inserts new opportunities into Supabase.",
-    scrapers: allScrapers.map((s) => ({ name: s.name, sourceId: s.sourceId })),
+    scrapers: allScrapers.map((s) => {
+      const src = enabledSources.find((e) => e.source_id === s.sourceId);
+      return {
+        name: s.name,
+        sourceId: s.sourceId,
+        enabled: src ? src.enabled : true,
+        priority: src?.priority || "normal",
+        intervalHours: src?.scrape_interval_hours || 24,
+        lastScraped: src?.last_scraped_at || null,
+        lastStatus: src?.last_status || null,
+      };
+    }),
     security: "Requires Authorization: Bearer <CRON_SECRET> header",
-    schedule: "Daily at 06:00 UTC (09:00 Romania time)",
+    schedule: "Every 6 hours (00:00, 06:00, 12:00, 18:00 UTC)",
   });
 }
