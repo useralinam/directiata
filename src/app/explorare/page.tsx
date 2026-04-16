@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Search, X, SlidersHorizontal, Plus, LayoutGrid, List } from "lucide-react";
 import OpportunityCard from "@/components/OpportunityCard";
 import AddOpportunityModal from "@/components/AddOpportunityModal";
@@ -77,19 +77,32 @@ function ExplorareContent() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [loading, setLoading] = useState(true);
   const [showPast, setShowPast] = useState(false);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const searchParams = useSearchParams();
+  const router = useRouter();
 
-  // Auto-open modal when ?adauga=1 is in URL
+  // Auto-open modal when ?adauga=1 is in URL, read ?tag= and ?cat= params
   useEffect(() => {
     if (searchParams.get("adauga") === "1") {
       setShowAddModal(true);
+    }
+    const tagParam = searchParams.get("tag");
+    if (tagParam) {
+      setSelectedTag(tagParam);
+    }
+    const catParam = searchParams.get("cat");
+    if (catParam && categories.some((c) => c.value === catParam)) {
+      setSelectedCategory(catParam as OpportunityCategory | "all");
     }
   }, [searchParams]);
 
   // Load saved filters + opportunities from Supabase on mount
   useEffect(() => {
     const saved = loadFilters();
-    setSelectedCategory(saved.category);
+    // Only apply saved category if no ?cat= param
+    if (!searchParams.get("cat")) {
+      setSelectedCategory(saved.category);
+    }
     setSelectedLocation(saved.location);
     setShowFreeOnly(saved.freeOnly);
     setSelectedAge(saved.ageRange);
@@ -129,9 +142,10 @@ function ExplorareContent() {
       const matchesFree = !showFreeOnly || opp.isFree;
       const matchesAge =
         selectedAge === "all" || parseMinAge(opp.ageRange) <= parseInt(selectedAge, 10);
-      return matchesCategory && matchesSearch && matchesLocation && matchesFree && matchesAge;
+      const matchesTag = !selectedTag || opp.tags.some((t) => t.toLowerCase() === selectedTag.toLowerCase());
+      return matchesCategory && matchesSearch && matchesLocation && matchesFree && matchesAge && matchesTag;
     });
-  }, [searchQuery, selectedCategory, selectedLocation, showFreeOnly, selectedAge, allOpportunities, showPast]);
+  }, [searchQuery, selectedCategory, selectedLocation, showFreeOnly, selectedAge, selectedTag, allOpportunities, showPast]);
 
   const pastCount = useMemo(() => allOpportunities.filter(isExpired).length, [allOpportunities]);
   const activeCount = useMemo(() => allOpportunities.filter((o) => !isExpired(o)).length, [allOpportunities]);
@@ -141,6 +155,7 @@ function ExplorareContent() {
     selectedLocation !== "Toate locațiile" && selectedLocation,
     showFreeOnly && "Gratuit",
     selectedAge !== "all" && `${selectedAge}+ ani`,
+    selectedTag && `🏷️ ${selectedTag}`,
   ].filter(Boolean);
 
   return (
@@ -334,6 +349,8 @@ function ExplorareContent() {
                         setShowFreeOnly(false);
                         setSelectedAge("all");
                         setSearchQuery("");
+                        setSelectedTag(null);
+                        router.replace("/explorare", { scroll: false });
                       }}
                       className="text-xs text-muted hover:text-secondary font-medium underline"
                     >

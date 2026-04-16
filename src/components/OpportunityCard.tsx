@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Heart, MapPin, Calendar, Users, Tag, ExternalLink, Clock, CheckCircle } from "lucide-react";
 import type { Opportunity } from "@/lib/types";
 import { isExpired } from "@/lib/types";
@@ -81,9 +82,21 @@ export default function OpportunityCard({ opportunity, variant = "grid", showExp
               ) : null}
             </div>
 
-            <h3 className="font-bold text-sm leading-snug mb-1 truncate group-hover:text-primary transition-colors">
-              {opportunity.title}
-            </h3>
+            {opportunity.url ? (
+              <a
+                href={opportunity.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-sm leading-snug mb-1 truncate block group-hover:text-primary transition-colors"
+              >
+                {opportunity.title}
+                <ExternalLink className="w-3 h-3 inline ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </a>
+            ) : (
+              <h3 className="font-bold text-sm leading-snug mb-1 truncate">
+                {opportunity.title}
+              </h3>
+            )}
 
             <p className="text-xs text-muted line-clamp-1 mb-1.5">
               {opportunity.description}
@@ -126,22 +139,6 @@ export default function OpportunityCard({ opportunity, variant = "grid", showExp
 
           {/* Actions */}
           <div className="flex sm:flex-col items-center gap-2 shrink-0">
-            {opportunity.url ? (
-              <a
-                href={opportunity.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2 rounded-lg bg-primary/10 text-primary text-xs font-bold hover:bg-primary/20 transition-colors flex items-center gap-1"
-              >
-                Detalii
-                <ExternalLink className="w-3 h-3" />
-              </a>
-            ) : (
-              <span className="px-4 py-2 rounded-lg bg-primary/10 text-primary text-xs font-bold flex items-center gap-1">
-                Detalii
-                <ExternalLink className="w-3 h-3" />
-              </span>
-            )}
             <button className="p-2 rounded-lg hover:bg-surface-alt transition-colors group/fav">
               <Heart className="w-4 h-4 text-muted group-hover/fav:text-secondary transition-colors" />
             </button>
@@ -183,9 +180,21 @@ export default function OpportunityCard({ opportunity, variant = "grid", showExp
       {/* Content */}
       <div className="flex flex-col flex-1 px-4 pt-3 pb-4">
         {/* Title — fixed 2-line height */}
-        <h3 className="font-bold text-[15px] leading-snug mb-1.5 line-clamp-2 min-h-[2.6em] group-hover:text-primary transition-colors">
-          {opportunity.title}
-        </h3>
+        {opportunity.url ? (
+          <a
+            href={opportunity.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold text-[15px] leading-snug mb-1.5 line-clamp-2 min-h-[2.6em] block group-hover:text-primary transition-colors"
+          >
+            {opportunity.title}
+            <ExternalLink className="w-3.5 h-3.5 inline ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </a>
+        ) : (
+          <h3 className="font-bold text-[15px] leading-snug mb-1.5 line-clamp-2 min-h-[2.6em]">
+            {opportunity.title}
+          </h3>
+        )}
 
         {/* Description — fixed 2-line height */}
         <p className="text-xs text-muted leading-relaxed mb-3 line-clamp-2 min-h-[2.6em]">
@@ -193,7 +202,7 @@ export default function OpportunityCard({ opportunity, variant = "grid", showExp
         </p>
 
         {/* Structured meta — fixed 5-row grid, all values truncated */}
-        <div className="grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-1 mb-3 text-xs min-h-[110px]">
+        <div className="grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-1 mb-3 text-xs min-h-[110px] min-w-0">
           {opportunity.organization && (
             <>
               <span className="flex items-center gap-1 text-muted whitespace-nowrap">
@@ -241,35 +250,20 @@ export default function OpportunityCard({ opportunity, variant = "grid", showExp
           {opportunity.tags && opportunity.tags.length > 0 && (
             <div className="flex flex-wrap gap-1">
               {opportunity.tags.slice(0, 4).map((tag) => (
-                <span
+                <Link
                   key={tag}
-                  className="px-2 py-0.5 bg-surface-alt rounded text-[11px] text-muted font-medium"
+                  href={`/explorare?tag=${encodeURIComponent(tag)}`}
+                  className="px-2 py-0.5 bg-surface-alt rounded text-[11px] text-muted font-medium hover:bg-primary/10 hover:text-primary transition-colors"
                 >
                   {tag}
-                </span>
+                </Link>
               ))}
             </div>
           )}
         </div>
 
         {/* Actions — pushed to bottom */}
-        <div className="mt-auto flex items-center justify-between pt-3 border-t border-border">
-          {opportunity.url ? (
-            <a
-              href={opportunity.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-bold text-primary hover:text-primary-dark transition-colors flex items-center gap-1"
-            >
-              Detalii
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          ) : (
-            <span className="text-sm font-bold text-primary flex items-center gap-1">
-              Detalii
-              <ExternalLink className="w-3.5 h-3.5" />
-            </span>
-          )}
+        <div className="mt-auto flex items-center justify-end pt-3 border-t border-border">
           <button className="p-2 rounded-lg hover:bg-surface-alt transition-colors group/fav">
             <Heart className="w-4 h-4 text-muted group-hover/fav:text-secondary transition-colors" />
           </button>
