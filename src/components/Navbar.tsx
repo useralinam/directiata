@@ -1,19 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X, Compass, Search, Plus } from "lucide-react";
+import { fetchCategoryCounts, type CategoryCounts } from "@/lib/opportunities";
 
 const navLinks = [
-  { href: "/explorare", label: "Explorează" },
-  { href: "/voluntariat", label: "Voluntariat" },
-  { href: "/evenimente", label: "Evenimente" },
-  { href: "/harta-mea", label: "Harta Mea" },
-  { href: "/comunitate", label: "Comunitate" },
+  { href: "/explorare", label: "Explorează", countKey: null },
+  { href: "/voluntariat", label: "Voluntariat", countKey: "voluntariat" as const },
+  { href: "/evenimente", label: "Evenimente", countKey: "evenimente" as const },
+  { href: "/harta-mea", label: "Harta Mea", countKey: null },
+  { href: "/comunitate", label: "Comunitate", countKey: null },
 ];
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [counts, setCounts] = useState<CategoryCounts | null>(null);
+
+  useEffect(() => {
+    fetchCategoryCounts().then(setCounts);
+  }, []);
 
   return (
     <nav className="sticky top-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-border">
@@ -33,9 +39,14 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-muted hover:text-foreground hover:bg-surface-alt transition-all"
+                className="px-4 py-2 rounded-lg text-sm font-medium text-muted hover:text-foreground hover:bg-surface-alt transition-all flex items-center gap-1.5"
               >
                 {link.label}
+                {counts && link.countKey && counts[link.countKey] > 0 && (
+                  <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
+                    {counts[link.countKey]}
+                  </span>
+                )}
               </Link>
             ))}
           </div>
@@ -84,9 +95,14 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsOpen(false)}
-                className="block px-4 py-3 rounded-lg text-sm font-medium text-muted hover:text-foreground hover:bg-surface-alt transition-all"
+                className="flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium text-muted hover:text-foreground hover:bg-surface-alt transition-all"
               >
                 {link.label}
+                {counts && link.countKey && counts[link.countKey] > 0 && (
+                  <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
+                    {counts[link.countKey]}
+                  </span>
+                )}
               </Link>
             ))}
             <Link

@@ -30,9 +30,9 @@ const categoryEmojis: Record<string, string> = {
 };
 
 const difficultyConfig: Record<string, { label: string; color: string }> = {
-  "ușor": { label: "Ușor", color: "bg-emerald-50 text-emerald-700" },
-  "mediu": { label: "Mediu", color: "bg-amber-50 text-amber-700" },
-  "avansat": { label: "Avansat", color: "bg-red-50 text-red-700" },
+  "ușor": { label: "Ușor", color: "bg-emerald-50 text-gray-900" },
+  "mediu": { label: "Mediu", color: "bg-amber-50 text-gray-900" },
+  "avansat": { label: "Avansat", color: "bg-red-50 text-gray-900" },
 };
 
 interface Props {
@@ -71,11 +71,11 @@ export default function OpportunityCard({ opportunity, variant = "grid", showExp
                 </span>
               )}
               {opportunity.isFree ? (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-gray-900">
                   Gratuit
                 </span>
               ) : opportunity.price ? (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-600">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-gray-900">
                   {opportunity.price}
                 </span>
               ) : null}
@@ -170,11 +170,11 @@ export default function OpportunityCard({ opportunity, variant = "grid", showExp
             </span>
           )}
           {opportunity.isFree ? (
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-gray-900">
               Gratuit
             </span>
           ) : opportunity.price ? (
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-600 max-w-full">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-gray-900 max-w-full">
               {opportunity.price}
             </span>
           ) : null}

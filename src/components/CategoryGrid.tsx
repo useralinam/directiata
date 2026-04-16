@@ -84,9 +84,11 @@ export default function CategoryGrid() {
                 <span className="text-5xl mb-4 block" role="img">{cat.emoji}</span>
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="text-lg font-bold">{cat.title}</h3>
-                  <span className="text-xs font-bold text-muted bg-surface-alt px-2.5 py-1 rounded-full">
-                    {counts ? counts[cat.key] : "..."}
-                  </span>
+                  {counts && (
+                    <span className="text-xs font-bold text-foreground bg-surface-alt px-2.5 py-1 rounded-full">
+                      {counts[cat.key]}
+                    </span>
+                  )}
                 </div>
                 <p className="text-sm text-muted leading-relaxed mb-4 flex-1">
                   {cat.description}

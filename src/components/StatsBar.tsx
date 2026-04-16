@@ -14,13 +14,13 @@ export default function StatsBar() {
   const stats = [
     {
       icon: Calendar,
-      value: counts ? String(counts.total) : "...",
+      value: counts ? String(counts.total) : "100+",
       label: "Oportunități listate",
       color: "text-primary",
     },
     {
       icon: Building2,
-      value: counts ? String(counts.organizations) : "...",
+      value: counts ? String(counts.organizations) : "30+",
       label: "Organizații verificate",
       color: "text-secondary",
     },
