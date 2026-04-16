@@ -155,31 +155,29 @@ export default function OpportunityCard({ opportunity, variant = "grid", showExp
   return (
     <div className={`card-hover h-full flex flex-col bg-surface rounded-2xl border border-border overflow-hidden group ${expired ? "opacity-75" : ""}`}>
       {/* Badges row */}
-      <div className="px-4 pt-4 pb-0 flex items-center justify-between">
+      <div className="px-4 pt-4 pb-0 flex flex-wrap items-center gap-1.5 min-h-[52px]">
           <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${badgeClass}`}>
             <span className="mr-0.5">{emoji}</span> {categoryLabel}
           </span>
-          <div className="flex items-center gap-1">
-            {expired && (
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500 flex items-center gap-0.5">
-                <CheckCircle className="w-3 h-3" /> S-a desfășurat
-              </span>
-            )}
-            {diff && (
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${diff.color}`}>
-                {diff.label}
-              </span>
-            )}
-            {opportunity.isFree ? (
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600">
-                Gratuit
-              </span>
-            ) : opportunity.price ? (
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-600">
-                {opportunity.price}
-              </span>
-            ) : null}
-          </div>
+          {expired && (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500 flex items-center gap-0.5">
+              <CheckCircle className="w-3 h-3" /> S-a desfășurat
+            </span>
+          )}
+          {diff && (
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${diff.color}`}>
+              {diff.label}
+            </span>
+          )}
+          {opportunity.isFree ? (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600">
+              Gratuit
+            </span>
+          ) : opportunity.price ? (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-600 max-w-full">
+              {opportunity.price}
+            </span>
+          ) : null}
       </div>
 
       {/* Content */}
