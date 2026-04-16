@@ -76,18 +76,18 @@ export default function HeroSection() {
           {/* CTA buttons */}
           <div className="animate-fade-in-up [animation-delay:500ms] flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/quiz"
+              href="/explorare"
               className="group px-8 py-4 bg-primary text-white font-bold rounded-2xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20 flex items-center gap-2"
             >
-              Ce tip de explorator ești?
+              Descoperă oportunități
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
-              href="/explorare"
+              href="/practica"
               className="px-8 py-4 border-2 border-border rounded-2xl font-bold hover:border-primary hover:text-primary transition-all flex items-center gap-2"
             >
               <MapPin className="w-4 h-4" />
-              Explorează oportunități
+              Practică la companii
             </Link>
           </div>
         </div>

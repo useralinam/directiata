@@ -2,15 +2,18 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Menu, X, Compass, Search, Plus } from "lucide-react";
+import { Menu, X, Compass, Search, Plus, MessageSquare } from "lucide-react";
 import { fetchCategoryCounts, type CategoryCounts } from "@/lib/opportunities";
 
 const navLinks = [
   { href: "/explorare", label: "Explorează", countKey: null },
   { href: "/voluntariat", label: "Voluntariat", countKey: "voluntariat" as const },
   { href: "/evenimente", label: "Evenimente", countKey: "evenimente" as const },
-  { href: "/harta-mea", label: "Harta Mea", countKey: null },
-  { href: "/comunitate", label: "Comunitate", countKey: null },
+  { href: "/explorare?cat=workshopuri", label: "Workshopuri", countKey: "workshopuri" as const },
+  { href: "/explorare?cat=competitii", label: "Competiții", countKey: "competitii" as const },
+  { href: "/explorare?cat=tabere", label: "Tabere", countKey: "tabere" as const },
+  { href: "/explorare?cat=burse", label: "Burse", countKey: "burse" as const },
+  { href: "/practica", label: "Practică", countKey: null },
 ];
 
 export default function Navbar() {
@@ -64,10 +67,11 @@ export default function Navbar() {
               Adaugă
             </Link>
             <Link
-              href="/quiz"
-              className="px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-dark transition-colors shadow-sm"
+              href="/feedback"
+              className="px-4 py-2.5 bg-accent/10 text-accent text-sm font-semibold rounded-xl hover:bg-accent/20 transition-colors flex items-center gap-1.5"
             >
-              Începe Quiz-ul
+              <MessageSquare className="w-4 h-4" />
+              Feedback
             </Link>
           </div>
 
@@ -106,11 +110,11 @@ export default function Navbar() {
               </Link>
             ))}
             <Link
-              href="/quiz"
+              href="/feedback"
               onClick={() => setIsOpen(false)}
-              className="block text-center mt-3 px-5 py-3 bg-primary text-white text-sm font-semibold rounded-xl"
+              className="block text-center mt-3 px-5 py-3 bg-accent/10 text-accent text-sm font-semibold rounded-xl"
             >
-              Începe Quiz-ul
+              Dă-ne feedback
             </Link>
             <Link
               href="/explorare?adauga=1"

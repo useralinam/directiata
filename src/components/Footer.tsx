@@ -9,12 +9,14 @@ const footerLinks = {
     { label: "Competiții", href: "/explorare?cat=competitii" },
     { label: "Tabere", href: "/explorare?cat=tabere" },
     { label: "Burse & Granturi", href: "/explorare?cat=burse" },
+    { label: "Practică companii", href: "/practica" },
   ],
   Platformă: [
     { label: "Despre noi", href: "/despre" },
     { label: "Cum funcționează", href: "/cum-functioneaza" },
     { label: "Pentru organizații", href: "/organizatii" },
     { label: "Blog", href: "/blog" },
+    { label: "Feedback", href: "/feedback" },
   ],
   Legal: [
     { label: "Termeni și condiții", href: "/termeni" },

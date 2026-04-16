@@ -22,23 +22,23 @@ export default function CTASection() {
             </h2>
 
             <p className="text-lg text-white/80 max-w-xl mx-auto mb-8 leading-relaxed">
-              Completează quiz-ul de 2 minute, descoperă ce tip de explorator ești și primește
-              recomandări personalizate. <strong className="text-white">E gratuit.</strong>
+              Explorează sute de oportunități de voluntariat, evenimente, burse, tabere și practică
+              la companii de top. <strong className="text-white">Totul e gratuit.</strong>
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
-                href="/quiz"
+                href="/explorare"
                 className="group px-8 py-4 bg-white text-primary font-bold rounded-2xl hover:bg-white/90 transition-all shadow-lg flex items-center gap-2"
               >
-                Începe Quiz-ul Acum
+                Explorează Acum
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
-                href="/explorare"
+                href="/practica"
                 className="px-8 py-4 border-2 border-white/30 rounded-2xl font-bold hover:bg-white/10 transition-all"
               >
-                Sau explorează direct
+                Practică la companii
               </Link>
             </div>
 
