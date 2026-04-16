@@ -123,8 +123,9 @@ function ExplorareContent() {
     saveFilters({ category: selectedCategory, location: selectedLocation, freeOnly: showFreeOnly, ageRange: selectedAge });
   }, [selectedCategory, selectedLocation, showFreeOnly, selectedAge, mounted]);
 
-  function handleAddOpportunity(opp: Opportunity) {
-    setAllOpportunities((prev) => [opp, ...prev]);
+  function handleAddOpportunity() {
+    // Opportunity saved with status 'pending' — don't add to local list
+    // The modal already shows a success message to the user
   }
 
   // Filter all except active/past (used for consistent badge counts)

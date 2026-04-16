@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { X, Plus, Loader2 } from "lucide-react";
-import type { Opportunity, OpportunityCategory } from "@/lib/types";
+import type { OpportunityCategory } from "@/lib/types";
 import { addOpportunity } from "@/lib/opportunities";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (opp: Opportunity) => void;
+  onAdd: () => void;
 }
 
 const categoryOptions: { value: OpportunityCategory; label: string }[] = [
@@ -89,7 +89,7 @@ export default function AddOpportunityModal({ isOpen, onClose, onAdd }: Props) {
     setSaving(false);
 
     if (result) {
-      onAdd(result);
+      onAdd();
       resetForm();
       setSubmitMessage({ type: "success", text: "Oportunitatea a fost trimisă și va fi vizibilă după aprobare!" });
       setTimeout(() => {

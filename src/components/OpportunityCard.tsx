@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
-import { Heart, MapPin, Calendar, Users, Tag, ExternalLink, Clock, CheckCircle } from "lucide-react";
+import { useState } from "react";
+import { Heart, MapPin, Calendar, Users, Tag, ExternalLink, Clock, CheckCircle, Flag } from "lucide-react";
 import type { Opportunity } from "@/lib/types";
 import { isExpired } from "@/lib/types";
+import ReportModal from "./ReportModal";
 
 const categoryStyles: Record<string, string> = {
   voluntariat: "badge-voluntariat",
@@ -43,6 +47,7 @@ interface Props {
 }
 
 export default function OpportunityCard({ opportunity, variant = "grid", showExpiredBadge }: Props) {
+  const [showReport, setShowReport] = useState(false);
   const badgeClass = categoryStyles[opportunity.category] || "badge-voluntariat";
   const categoryLabel = categoryLabels[opportunity.category] || opportunity.category;
   const emoji = categoryEmojis[opportunity.category] || "✨";
@@ -142,8 +147,21 @@ export default function OpportunityCard({ opportunity, variant = "grid", showExp
             <button className="p-2 rounded-lg hover:bg-surface-alt transition-colors group/fav">
               <Heart className="w-4 h-4 text-muted group-hover/fav:text-secondary transition-colors" />
             </button>
+            <button
+              onClick={() => setShowReport(true)}
+              className="p-2 rounded-lg hover:bg-amber-50 transition-colors group/rep"
+              title="Raportează o problemă"
+            >
+              <Flag className="w-3.5 h-3.5 text-muted group-hover/rep:text-amber-500 transition-colors" />
+            </button>
           </div>
         </div>
+        <ReportModal
+          isOpen={showReport}
+          onClose={() => setShowReport(false)}
+          opportunityId={opportunity.id}
+          opportunityTitle={opportunity.title}
+        />
       </div>
     );
   }
@@ -263,11 +281,24 @@ export default function OpportunityCard({ opportunity, variant = "grid", showExp
         </div>
 
         {/* Actions — pushed to bottom */}
-        <div className="mt-auto flex items-center justify-end pt-3 border-t border-border">
+        <div className="mt-auto flex items-center justify-end gap-1 pt-3 border-t border-border">
+          <button
+            onClick={() => setShowReport(true)}
+            className="p-2 rounded-lg hover:bg-amber-50 transition-colors group/rep"
+            title="Raportează o problemă"
+          >
+            <Flag className="w-3.5 h-3.5 text-muted group-hover/rep:text-amber-500 transition-colors" />
+          </button>
           <button className="p-2 rounded-lg hover:bg-surface-alt transition-colors group/fav">
             <Heart className="w-4 h-4 text-muted group-hover/fav:text-secondary transition-colors" />
           </button>
         </div>
+        <ReportModal
+          isOpen={showReport}
+          onClose={() => setShowReport(false)}
+          opportunityId={opportunity.id}
+          opportunityTitle={opportunity.title}
+        />
       </div>
     </div>
   );
