@@ -182,16 +182,18 @@ export default function OpportunityCard({ opportunity, variant = "grid", showExp
 
       {/* Content */}
       <div className="flex flex-col flex-1 px-4 pt-3 pb-4">
-        <h3 className="font-bold text-[15px] leading-snug mb-1.5 line-clamp-2 group-hover:text-primary transition-colors">
+        {/* Title — fixed 2-line height */}
+        <h3 className="font-bold text-[15px] leading-snug mb-1.5 line-clamp-2 min-h-[2.6em] group-hover:text-primary transition-colors">
           {opportunity.title}
         </h3>
 
-        <p className="text-xs text-muted leading-relaxed mb-3 line-clamp-2">
+        {/* Description — fixed 2-line height */}
+        <p className="text-xs text-muted leading-relaxed mb-3 line-clamp-2 min-h-[2.6em]">
           {opportunity.description}
         </p>
 
-        {/* Structured meta — grid layout */}
-        <div className="grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-1 mb-3 text-xs">
+        {/* Structured meta — fixed 5-row grid, all values truncated */}
+        <div className="grid grid-cols-[auto_1fr] gap-x-2.5 gap-y-1 mb-3 text-xs min-h-[110px]">
           {opportunity.organization && (
             <>
               <span className="flex items-center gap-1 text-muted whitespace-nowrap">
@@ -213,7 +215,7 @@ export default function OpportunityCard({ opportunity, variant = "grid", showExp
               <span className="flex items-center gap-1 text-muted whitespace-nowrap">
                 <Calendar className="w-3 h-3" /> Dată
               </span>
-              <span className="font-medium text-foreground/80">{opportunity.date}</span>
+              <span className="font-medium text-foreground/80 truncate">{opportunity.date}</span>
             </>
           )}
           {opportunity.deadline && (
@@ -221,7 +223,7 @@ export default function OpportunityCard({ opportunity, variant = "grid", showExp
               <span className="flex items-center gap-1 text-muted whitespace-nowrap">
                 <Clock className="w-3 h-3" /> Deadline
               </span>
-              <span className="font-bold text-secondary">{opportunity.deadline}</span>
+              <span className="font-bold text-secondary truncate">{opportunity.deadline}</span>
             </>
           )}
           {opportunity.ageRange && (
@@ -234,19 +236,21 @@ export default function OpportunityCard({ opportunity, variant = "grid", showExp
           )}
         </div>
 
-        {/* Tags */}
-        {opportunity.tags && opportunity.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-3">
-            {opportunity.tags.slice(0, 4).map((tag) => (
-              <span
-                key={tag}
-                className="px-2 py-0.5 bg-surface-alt rounded text-[11px] text-muted font-medium"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
+        {/* Tags — fixed height */}
+        <div className="min-h-[28px] mb-3">
+          {opportunity.tags && opportunity.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {opportunity.tags.slice(0, 4).map((tag) => (
+                <span
+                  key={tag}
+                  className="px-2 py-0.5 bg-surface-alt rounded text-[11px] text-muted font-medium"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Actions — pushed to bottom */}
         <div className="mt-auto flex items-center justify-between pt-3 border-t border-border">
