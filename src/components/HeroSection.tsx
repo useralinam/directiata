@@ -1,16 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Sparkles, Search, MapPin } from "lucide-react";
-import { fetchCategoryCounts } from "@/lib/opportunities";
 
 export default function HeroSection() {
-  const [total, setTotal] = useState<number | null>(null);
-
-  useEffect(() => {
-    fetchCategoryCounts().then((c) => setTotal(c.total));
-  }, []);
 
   return (
     <section className="relative overflow-hidden">
@@ -42,7 +35,7 @@ export default function HeroSection() {
           {/* Subtitle */}
           <p className="animate-fade-in-up [animation-delay:200ms] text-lg md:text-xl text-muted leading-relaxed mb-10 max-w-2xl mx-auto">
             Voluntariat, evenimente, workshopuri, competiții și tabere — toate într-un singur loc.
-            Descoperă <strong className="text-foreground">{total ? `peste ${total} de oportunități` : "oportunități"}</strong> din zeci de surse verificate.
+            Descoperă <strong className="text-foreground">peste 100 de oportunități</strong> din zeci de surse verificate.
           </p>
 
           {/* Search bar */}
