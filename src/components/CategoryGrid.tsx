@@ -1,52 +1,62 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { fetchCategoryCounts, type CategoryCounts } from "@/lib/opportunities";
 
 const categories = [
   {
     emoji: "🤝",
     title: "Voluntariat",
+    key: "voluntariat" as const,
     description: "Dă înapoi comunității. Descoperă proiecte sociale, ecologie, educație și multe altele.",
-    count: "1.200+",
     href: "/voluntariat",
   },
   {
     emoji: "🎪",
     title: "Evenimente",
+    key: "evenimente" as const,
     description: "Conferințe, festivaluri, hackathoane, TEDx — experimentează energie și inspirație.",
-    count: "850+",
     href: "/evenimente",
   },
   {
     emoji: "💡",
     title: "Workshopuri",
+    key: "workshopuri" as const,
     description: "Învață practic: public speaking, programare, antreprenoriat, fotografie și mult mai mult.",
-    count: "420+",
     href: "/explorare?cat=workshopuri",
   },
   {
     emoji: "🏆",
     title: "Competiții",
+    key: "competitii" as const,
     description: "Olimpiade, hackatoane, debate — pune-te la încercare și câștigă experiență reală.",
-    count: "310+",
     href: "/explorare?cat=competitii",
   },
   {
     emoji: "⛺",
     title: "Tabere",
+    key: "tabere" as const,
     description: "Tabere tematice de vară, natură, STEM, artă — aventuri care te transformă.",
-    count: "180+",
     href: "/explorare?cat=tabere",
   },
   {
     emoji: "🎓",
     title: "Burse & Granturi",
+    key: "burse" as const,
     description: "Burse de studiu, granturi pentru proiecte, fonduri pentru idei — banii care te ajută să crești.",
-    count: "540+",
     href: "/explorare?cat=burse",
   },
 ];
 
 export default function CategoryGrid() {
+  const [counts, setCounts] = useState<CategoryCounts | null>(null);
+
+  useEffect(() => {
+    fetchCategoryCounts().then(setCounts);
+  }, []);
+
   return (
     <section className="py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -75,7 +85,7 @@ export default function CategoryGrid() {
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="text-lg font-bold">{cat.title}</h3>
                   <span className="text-xs font-bold text-muted bg-surface-alt px-2.5 py-1 rounded-full">
-                    {cat.count}
+                    {counts ? counts[cat.key] : "..."}
                   </span>
                 </div>
                 <p className="text-sm text-muted leading-relaxed mb-4 flex-1">

@@ -124,3 +124,39 @@ export async function addOpportunity(
     createdAt: new Date().toISOString().slice(0, 10),
   };
 }
+
+export interface CategoryCounts {
+  voluntariat: number;
+  evenimente: number;
+  workshopuri: number;
+  competitii: number;
+  tabere: number;
+  burse: number;
+  total: number;
+  organizations: number;
+}
+
+export async function fetchCategoryCounts(): Promise<CategoryCounts> {
+  const counts: CategoryCounts = {
+    voluntariat: 0, evenimente: 0, workshopuri: 0,
+    competitii: 0, tabere: 0, burse: 0,
+    total: 0, organizations: 0,
+  };
+
+  const { data, error } = await supabase
+    .from("opportunities")
+    .select("category, organization");
+
+  if (error || !data) return counts;
+
+  const orgs = new Set<string>();
+  for (const row of data as { category: string; organization: string }[]) {
+    const cat = row.category as keyof Omit<CategoryCounts, "total" | "organizations">;
+    if (cat in counts) counts[cat]++;
+    counts.total++;
+    if (row.organization) orgs.add(row.organization);
+  }
+  counts.organizations = orgs.size;
+
+  return counts;
+}

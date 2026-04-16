@@ -1,33 +1,43 @@
-import { Users, Calendar, Building2, TrendingUp } from "lucide-react";
+"use client";
 
-const stats = [
-  {
-    icon: Calendar,
-    value: "100+",
-    label: "Oportunități listate",
-    color: "text-primary",
-  },
-  {
-    icon: Building2,
-    value: "60+",
-    label: "Organizații verificate",
-    color: "text-secondary",
-  },
-  {
-    icon: Users,
-    value: "6",
-    label: "Categorii disponibile",
-    color: "text-accent-green",
-  },
-  {
-    icon: TrendingUp,
-    value: "Zeci",
-    label: "Surse verificate",
-    color: "text-accent-purple",
-  },
-];
+import { useEffect, useState } from "react";
+import { Users, Calendar, Building2, TrendingUp } from "lucide-react";
+import { fetchCategoryCounts, type CategoryCounts } from "@/lib/opportunities";
 
 export default function StatsBar() {
+  const [counts, setCounts] = useState<CategoryCounts | null>(null);
+
+  useEffect(() => {
+    fetchCategoryCounts().then(setCounts);
+  }, []);
+
+  const stats = [
+    {
+      icon: Calendar,
+      value: counts ? String(counts.total) : "...",
+      label: "Oportunități listate",
+      color: "text-primary",
+    },
+    {
+      icon: Building2,
+      value: counts ? String(counts.organizations) : "...",
+      label: "Organizații verificate",
+      color: "text-secondary",
+    },
+    {
+      icon: Users,
+      value: "6",
+      label: "Categorii disponibile",
+      color: "text-accent-green",
+    },
+    {
+      icon: TrendingUp,
+      value: "Zeci",
+      label: "Surse verificate",
+      color: "text-accent-purple",
+    },
+  ];
+
   return (
     <section className="py-6 bg-surface border-y border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
