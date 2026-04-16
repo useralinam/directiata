@@ -34,6 +34,10 @@ function parseMinAge(ageRange?: string): number {
   return m ? parseInt(m[1], 10) : 0;
 }
 
+function stripDiacritics(str: string): string {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
 const STORAGE_KEY = "directia-ta-filters";
 
 interface Filters {
@@ -123,32 +127,37 @@ function ExplorareContent() {
     setAllOpportunities((prev) => [opp, ...prev]);
   }
 
-  const filtered = useMemo(() => {
+  // Filter all except active/past (used for consistent badge counts)
+  const baseFiltered = useMemo(() => {
     return allOpportunities.filter((opp) => {
-      // Filter by active vs past
-      const oppExpired = isExpired(opp);
-      if (showPast && !oppExpired) return false;
-      if (!showPast && oppExpired) return false;
-
       const matchesCategory = selectedCategory === "all" || opp.category === selectedCategory;
       const matchesSearch =
         !searchQuery ||
-        opp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        opp.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        opp.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
+        stripDiacritics(opp.title.toLowerCase()).includes(stripDiacritics(searchQuery.toLowerCase())) ||
+        stripDiacritics(opp.description.toLowerCase()).includes(stripDiacritics(searchQuery.toLowerCase())) ||
+        opp.tags.some((t) => stripDiacritics(t.toLowerCase()).includes(stripDiacritics(searchQuery.toLowerCase())));
       const matchesLocation =
         selectedLocation === "Toate locațiile" ||
-        opp.location.toLowerCase().includes(selectedLocation.toLowerCase());
+        stripDiacritics(opp.location.toLowerCase()).includes(stripDiacritics(selectedLocation.toLowerCase()));
       const matchesFree = !showFreeOnly || opp.isFree;
       const matchesAge =
         selectedAge === "all" || parseMinAge(opp.ageRange) <= parseInt(selectedAge, 10);
-      const matchesTag = !selectedTag || opp.tags.some((t) => t.toLowerCase() === selectedTag.toLowerCase());
+      const matchesTag = !selectedTag || opp.tags.some((t) => stripDiacritics(t.toLowerCase()) === stripDiacritics(selectedTag.toLowerCase()));
       return matchesCategory && matchesSearch && matchesLocation && matchesFree && matchesAge && matchesTag;
     });
-  }, [searchQuery, selectedCategory, selectedLocation, showFreeOnly, selectedAge, selectedTag, allOpportunities, showPast]);
+  }, [searchQuery, selectedCategory, selectedLocation, showFreeOnly, selectedAge, selectedTag, allOpportunities]);
 
-  const pastCount = useMemo(() => allOpportunities.filter(isExpired).length, [allOpportunities]);
-  const activeCount = useMemo(() => allOpportunities.filter((o) => !isExpired(o)).length, [allOpportunities]);
+  // Apply active/past filter on top
+  const filtered = useMemo(() => {
+    return baseFiltered.filter((opp) => {
+      const oppExpired = isExpired(opp);
+      return showPast ? oppExpired : !oppExpired;
+    });
+  }, [baseFiltered, showPast]);
+
+  // Badge counts reflect current filters (consistent with what's shown)
+  const activeCount = useMemo(() => baseFiltered.filter((o) => !isExpired(o)).length, [baseFiltered]);
+  const pastCount = useMemo(() => baseFiltered.filter(isExpired).length, [baseFiltered]);
 
   const activeFilters = [
     selectedCategory !== "all" && selectedCategory,

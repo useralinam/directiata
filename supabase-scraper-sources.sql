@@ -29,9 +29,11 @@ CREATE TABLE IF NOT EXISTS scraper_sources (
 ALTER TABLE scraper_sources ENABLE ROW LEVEL SECURITY;
 
 -- Public read access (so the site can show source info)
-CREATE POLICY "Public read scraper sources"
-  ON scraper_sources FOR SELECT
-  USING (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Public read scraper sources' AND tablename = 'scraper_sources') THEN
+    CREATE POLICY "Public read scraper sources" ON scraper_sources FOR SELECT USING (true);
+  END IF;
+END $$;
 
 -- Seed with existing scrapers
 INSERT INTO scraper_sources (name, source_id, url, enabled, priority, scrape_interval_hours, notes) VALUES

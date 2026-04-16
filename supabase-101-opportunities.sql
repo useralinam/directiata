@@ -4,6 +4,20 @@
 -- Avem deja 35 in DB, adăugăm 66 noi
 -- ================================================
 
+-- Pas 1: Curăță URL-uri duplicate din tabel (păstrează intrarea cea mai veche)
+DELETE FROM opportunities WHERE id IN (
+  SELECT id FROM (
+    SELECT id, ROW_NUMBER() OVER (PARTITION BY url ORDER BY created_at ASC) as rn
+    FROM opportunities
+    WHERE url IS NOT NULL
+  ) dupes WHERE rn > 1
+);
+
+-- Pas 2: Recrează index unic pe url
+DROP INDEX IF EXISTS idx_opportunities_url_unique;
+CREATE UNIQUE INDEX idx_opportunities_url_unique ON opportunities(url);
+
+-- Pas 3: Inserează oportunitățile noi (skip duplicate)
 INSERT INTO opportunities (title, description, category, organization, location, date, deadline, age_range, tags, is_free, price, url, source, difficulty, status, created_at) VALUES
 
 -- ============================================================
@@ -156,4 +170,5 @@ INSERT INTO opportunities (title, description, category, organization, location,
 
 ('Bursa Theodor Pallady -- Arte Vizuale pentru Tineri Artisti', 'Bursa acordata anual de Ministerul Culturii pentru tineri artisti plastici. Finantare pentru proiecte de creatie, expozitii si rezidente artistice. Portofoliu necesar la inscriere.', 'burse', 'Ministerul Culturii', 'Romania', 'Inscrieri primavara 2026', 'Mai 2026', '18-35 ani', ARRAY['arta', 'bursa', 'cultura', 'creatie'], true, NULL, 'https://www.culturadata.ro/', 'culturadata.ro', 'avansat', 'approved', '2026-04-14'),
 
-('DAAD Romania -- Burse pentru Studii in Germania', 'DAAD (Serviciul German de Schimb Academic) ofera burse pentru studii, cercetare si stagii in Germania. Programe de vara, master si doctorat. Peste 100 de tipuri de burse disponibile.', 'burse', 'DAAD -- Serviciul German de Schimb Academic', 'Germania', 'Inscrieri pe parcursul anului', NULL, '18-35 ani', ARRAY['bursa', 'Germania', 'studii', 'cercetare'], true, NULL, 'https://www.daad.ro/', 'daad.ro', 'mediu', 'approved', '2026-04-14');
+('DAAD Romania -- Burse pentru Studii in Germania', 'DAAD (Serviciul German de Schimb Academic) ofera burse pentru studii, cercetare si stagii in Germania. Programe de vara, master si doctorat. Peste 100 de tipuri de burse disponibile.', 'burse', 'DAAD -- Serviciul German de Schimb Academic', 'Germania', 'Inscrieri pe parcursul anului', NULL, '18-35 ani', ARRAY['bursa', 'Germania', 'studii', 'cercetare'], true, NULL, 'https://www.daad.ro/', 'daad.ro', 'mediu', 'approved', '2026-04-14')
+ON CONFLICT (url) DO NOTHING;
