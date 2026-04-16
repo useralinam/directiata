@@ -34,7 +34,7 @@ export default function ConfidentialitatePage() {
               Operatorul platformei DirecțiaTa este{" "}
               <strong>TECHLAYER SOFTWARE SRL</strong>, CUI 50975494, cu sediul
               în Calea Grivitei 214, București, Sector 1, România. Contact:{" "}
-              contact@directia-ta.ro.
+              alina.tomsa@techlayer.ro.
             </p>
           </section>
 
@@ -150,7 +150,7 @@ export default function ConfidentialitatePage() {
             <h2 className="text-xl font-semibold mb-3">Contact</h2>
             <p>
               Pentru întrebări legate de confidențialitate, ne poți scrie la{" "}
-              contact@directia-ta.ro sau pe{" "}
+              alina.tomsa@techlayer.ro sau pe{" "}
               <Link href="/contact" className="text-primary hover:underline">
                 pagina de contact
               </Link>

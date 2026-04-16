@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     }
 
     // Send email notification to admin
-    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminEmail = process.env.ADMIN_EMAIL || "alina.tomsa@techlayer.ro";
     if (adminEmail) {
       try {
         const resendKey = process.env.RESEND_API_KEY;

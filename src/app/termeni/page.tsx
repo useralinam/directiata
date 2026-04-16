@@ -135,7 +135,7 @@ export default function TermeniPage() {
               <li><strong>TECHLAYER SOFTWARE SRL</strong></li>
               <li>CUI: 50975494</li>
               <li>Sediu: Calea Grivitei 214, București, Sector 1, România</li>
-              <li>E-mail: contact@directia-ta.ro</li>
+              <li>E-mail: alina.tomsa@techlayer.ro</li>
             </ul>
           </section>
 
@@ -146,7 +146,7 @@ export default function TermeniPage() {
               <Link href="/contact" className="text-primary hover:underline">
                 pagina de contact
               </Link>{" "}
-              sau la adresa contact@directia-ta.ro.
+              sau la adresa alina.tomsa@techlayer.ro.
             </p>
           </section>
         </div>
