@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Shield, CheckCircle, XCircle, Clock, Trash2, Edit3, Eye, AlertTriangle, ChevronDown, Loader2 } from "lucide-react";
+import { Shield, CheckCircle, XCircle, Clock, Trash2, Edit3, Eye, AlertTriangle, ChevronDown, Loader2, CreditCard } from "lucide-react";
 import { getSupabase } from "@/lib/supabase";
 
 const ADMIN_PASSWORD = "directiata2026";
@@ -35,6 +35,35 @@ interface Report {
   created_at: string;
 }
 
+interface Subscription {
+  id: string;
+  company_name: string;
+  company_email: string;
+  status: string;
+  plan: string;
+  trial_start: string | null;
+  trial_end: string | null;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  created_at: string;
+}
+
+const statusColors: Record<string, string> = {
+  trial: "bg-blue-100 text-blue-700",
+  active: "bg-emerald-100 text-emerald-700",
+  past_due: "bg-amber-100 text-amber-700",
+  cancelled: "bg-red-100 text-red-700",
+  expired: "bg-gray-100 text-gray-600",
+};
+
+const statusLabels: Record<string, string> = {
+  trial: "Trial",
+  active: "Activ",
+  past_due: "Restanță",
+  cancelled: "Anulat",
+  expired: "Expirat",
+};
+
 const reasonLabels: Record<string, string> = {
   wrong_category: "Categorie greșită",
   wrong_deadline: "Deadline incorect",
@@ -48,9 +77,10 @@ const reasonLabels: Record<string, string> = {
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [password, setPassword] = useState("");
-  const [tab, setTab] = useState<"pending" | "reports">("pending");
+  const [tab, setTab] = useState<"pending" | "reports" | "subscriptions">("pending");
   const [pending, setPending] = useState<PendingOpp[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<PendingOpp>>({});
@@ -76,6 +106,14 @@ export default function AdminPage() {
       .order("created_at", { ascending: false });
 
     if (reportsData) setReports(reportsData as Report[]);
+
+    // Load subscriptions
+    const { data: subsData } = await supabase
+      .from("company_subscriptions")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (subsData) setSubscriptions(subsData as Subscription[]);
     setLoading(false);
   }, []);
 
@@ -130,6 +168,17 @@ export default function AdminPage() {
     const supabase = getSupabase();
     await supabase.from("reports").update({ status: "resolved" }).eq("id", reportId);
     setReports((prev) => prev.map((r) => (r.id === reportId ? { ...r, status: "resolved" } : r)));
+    setActionLoading(null);
+  }
+
+  async function updateSubscriptionStatus(id: string, newStatus: string) {
+    setActionLoading(id);
+    const supabase = getSupabase();
+    await supabase.from("company_subscriptions").update({ status: newStatus }).eq("id", id);
+    if (newStatus === "expired" || newStatus === "cancelled") {
+      await supabase.from("internships").update({ status: "expired" }).eq("subscription_id", id);
+    }
+    setSubscriptions((prev) => prev.map((s) => (s.id === id ? { ...s, status: newStatus } : s)));
     setActionLoading(null);
   }
 
@@ -189,6 +238,15 @@ export default function AdminPage() {
           >
             <AlertTriangle className="w-4 h-4" />
             Rapoarte ({newReports} noi)
+          </button>
+          <button
+            onClick={() => setTab("subscriptions")}
+            className={`px-4 py-2 rounded-xl text-sm font-bold transition-colors flex items-center gap-2 ${
+              tab === "subscriptions" ? "bg-violet-500 text-white" : "bg-surface border border-border hover:bg-surface-alt"
+            }`}
+          >
+            <CreditCard className="w-4 h-4" />
+            Subscripții ({subscriptions.length})
           </button>
           <button
             onClick={loadData}
@@ -380,6 +438,64 @@ export default function AdminPage() {
                         className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-bold hover:bg-emerald-600 disabled:opacity-50"
                       >
                         {actionLoading === report.id ? "..." : "Rezolvat ✓"}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Subscriptions */}
+        {tab === "subscriptions" && (
+          <div className="space-y-3">
+            {subscriptions.length === 0 && (
+              <div className="text-center py-12 text-muted text-sm">
+                <CreditCard className="w-8 h-8 mx-auto mb-2 text-violet-400" />
+                Nicio subscripție
+              </div>
+            )}
+            {subscriptions.map((sub) => (
+              <div key={sub.id} className="bg-surface rounded-xl border border-border p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${statusColors[sub.status] || "bg-gray-100 text-gray-600"}`}>
+                        {statusLabels[sub.status] || sub.status}
+                      </span>
+                      <span className="text-[10px] text-muted">
+                        {new Date(sub.created_at).toLocaleDateString("ro-RO")}
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-sm mb-1">{sub.company_name}</h3>
+                    <p className="text-xs text-muted mb-1">{sub.company_email}</p>
+                    <div className="flex gap-4 text-[11px] text-muted flex-wrap">
+                      {sub.trial_end && (
+                        <span>Trial până: {new Date(sub.trial_end).toLocaleDateString("ro-RO")}</span>
+                      )}
+                      {sub.stripe_subscription_id && (
+                        <span className="font-mono text-[10px]">{sub.stripe_subscription_id}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    {(sub.status === "trial" || sub.status === "active") && (
+                      <button
+                        onClick={() => updateSubscriptionStatus(sub.id, "expired")}
+                        disabled={actionLoading === sub.id}
+                        className="px-3 py-1.5 rounded-lg bg-red-500 text-white text-xs font-bold hover:bg-red-600 disabled:opacity-50"
+                      >
+                        {actionLoading === sub.id ? "..." : "Expiră"}
+                      </button>
+                    )}
+                    {(sub.status === "expired" || sub.status === "cancelled") && (
+                      <button
+                        onClick={() => updateSubscriptionStatus(sub.id, "active")}
+                        disabled={actionLoading === sub.id}
+                        className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-bold hover:bg-emerald-600 disabled:opacity-50"
+                      >
+                        {actionLoading === sub.id ? "..." : "Activează"}
                       </button>
                     )}
                   </div>

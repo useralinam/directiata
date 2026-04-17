@@ -96,20 +96,20 @@ export default function PracticaPage() {
           </p>
 
           <div className="flex flex-wrap gap-3">
-            <button
-              onClick={() => setShowCompanyForm(true)}
+            <Link
+              href="/practica/pret"
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl font-semibold text-sm hover:bg-primary-dark transition-colors"
             >
               <Building2 className="w-4 h-4" />
-              Sunt companie — vreau să listez
-            </button>
-            <Link
-              href="/feedback"
+              Sunt companie — 60 zile gratuit
+            </Link>
+            <button
+              onClick={() => setShowCompanyForm(true)}
               className="inline-flex items-center gap-2 px-5 py-2.5 border border-border rounded-xl font-semibold text-sm hover:border-primary hover:text-primary transition-all"
             >
               <Plus className="w-4 h-4" />
-              Sugerează o companie
-            </Link>
+              Listare rapidă (fără cont)
+            </button>
           </div>
         </div>
       </section>
@@ -359,9 +359,8 @@ function CompanyFormModal({ onClose }: { onClose: () => void }) {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
             <p className="text-sm text-muted bg-primary/5 border border-primary/20 rounded-lg p-3">
-              Primele 30 de zile sunt gratuite. După aceea, contactează-ne la{" "}
-              <a href="mailto:alina.tomsa@techlayer.ro" className="text-primary font-medium">alina.tomsa@techlayer.ro</a>{" "}
-              pentru a menține listarea activă.
+              Listare rapidă fără cont. Pentru abonament cu 60 zile gratuite și listări nelimitate,{" "}
+              <Link href="/practica/pret" className="text-primary font-medium">vezi planul de abonament →</Link>
             </p>
 
             <fieldset className="border border-border rounded-lg p-4 space-y-3">
