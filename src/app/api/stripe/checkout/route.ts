@@ -69,7 +69,6 @@ export async function POST(request: Request) {
     const session = await stripe.checkout.sessions.create({
       customer: customer.id,
       mode: "subscription",
-      payment_method_types: ["card"],
       line_items: [
         {
           price: priceId,
@@ -85,16 +84,6 @@ export async function POST(request: Request) {
       },
       success_url: `${baseUrl}/practica/pret?status=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/practica/pret?status=cancelled`,
-      locale: "ro",
-      tax_id_collection: { enabled: true },
-      custom_fields: cui ? [] : [
-        {
-          key: "cui",
-          label: { type: "custom", custom: "CUI / Cod fiscal (pentru factură)" },
-          type: "text",
-          optional: true,
-        },
-      ],
     });
 
     // Save subscription record in Supabase (status: trial)
@@ -113,10 +102,11 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ url: session.url });
-  } catch (err) {
-    console.error("Stripe checkout error:", err);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("Stripe checkout error:", message, err);
     return NextResponse.json(
-      { error: "Eroare la procesare. Încearcă din nou." },
+      { error: `Eroare la procesare: ${message}` },
       { status: 500 }
     );
   }
