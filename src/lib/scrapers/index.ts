@@ -1,6 +1,8 @@
 import { saltoYouthScraper } from "./salto-youth";
 import { eurodeskScraper } from "./eurodesk";
-import { suntsolidarScraper } from "./suntsolidar";
+// suntsolidar.eu is a 100% JS SPA (61 bytes HTML) — cannot be scraped with cheerio.
+// Disabled until a headless browser solution (Playwright/Browserless) is added.
+// import { suntsolidarScraper } from "./suntsolidar";
 import { anpcdefpScraper } from "./anpcdefp";
 import type { Scraper } from "./types";
 
@@ -12,6 +14,6 @@ import type { Scraper } from "./types";
 export const allScrapers: Scraper[] = [
   saltoYouthScraper,
   eurodeskScraper,
-  suntsolidarScraper,
+  // suntsolidarScraper, // disabled — JS SPA, needs Playwright
   anpcdefpScraper,
 ];

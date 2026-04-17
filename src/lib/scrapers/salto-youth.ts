@@ -4,9 +4,9 @@ import { fetchPage, cleanText, truncate } from "./utils";
 
 /**
  * SALTO-YOUTH European Training Calendar scraper.
- * Scrapes upcoming training courses, seminars, and study visits
- * from the SALTO-YOUTH training calendar.
- * Source: https://salto-youth.net/tools/european-training-calendar/
+ * Scrapes the /browse/ page which lists training offers as server-rendered HTML.
+ * Each item is a .tool-item with structured sub-elements.
+ * Source: https://www.salto-youth.net/tools/european-training-calendar/browse/
  */
 export const saltoYouthScraper: Scraper = {
   name: "SALTO-YOUTH Training Calendar",
@@ -14,74 +14,70 @@ export const saltoYouthScraper: Scraper = {
 
   async run(): Promise<ScrapedOpportunity[]> {
     const opportunities: ScrapedOpportunity[] = [];
-    const baseUrl = "https://salto-youth.net";
-    const calendarUrl = `${baseUrl}/tools/european-training-calendar/`;
+    const calendarUrl =
+      "https://www.salto-youth.net/tools/european-training-calendar/browse/";
 
     const html = await fetchPage(calendarUrl);
     const $ = cheerio.load(html);
 
-    // SALTO lists trainings in .training-item or similar structured elements
-    const trainingElements = $(
-      ".tool-listing-results .tool-listing-results__item, .training-item, .tc-item, article.card, .event-card, tr.training-row"
-    );
+    // Each training is a .tool-item div with .tool-item-description inside
+    const items = $(".tool-item");
 
-    trainingElements.each((_i, el) => {
+    items.each((_i, el) => {
       try {
         const $el = $(el);
 
-        // Extract title from heading or link
-        const titleEl =
-          $el.find("h2 a, h3 a, .title a, .card-title a, a.training-title").first();
-        const title = cleanText(titleEl.text());
-        const href = titleEl.attr("href");
+        // Title: h2.tool-item-name > a
+        const titleLink = $el.find("h2.tool-item-name a, h3.tool-item-name a").first();
+        const title = cleanText(titleLink.text());
+        const url = titleLink.attr("href") || "";
 
-        if (!title || title.length < 5) return;
+        if (!title || title.length < 5 || !url) return;
 
-        // Build full URL
-        const url = href
-          ? href.startsWith("http")
-            ? href
-            : `${baseUrl}${href}`
-          : "";
+        // Category label (e.g. "Training Course", "Seminar")
+        const categoryLabel = cleanText(
+          $el.find(".tool-item-category").first().text()
+        ).toLowerCase();
 
-        if (!url) return;
+        // Description: paragraph inside .tool-item-description (3rd <p> usually)
+        const descParagraphs = $el.find(".tool-item-description > p.mrgn-btm-22, .tool-item-description > p.h5");
+        let description = "";
+        descParagraphs.each((_j, p) => {
+          const text = cleanText($(p).text());
+          // The description paragraph is the longest one
+          if (text.length > description.length && !text.match(/^\d/)) {
+            description = text;
+          }
+        });
+        if (!description) description = title;
 
-        // Extract description
-        const descEl = $el.find(
-          ".description, .summary, .card-text, p, .teaser"
-        ).first();
-        const description = cleanText(descEl.text()) || title;
+        // Date: first .h5 paragraph (e.g. "25 May - 1 June 2026")
+        const dateText = cleanText(
+          $el.find(".tool-item-description > p.h5").first().text()
+        );
 
-        // Extract date
-        const dateEl = $el.find(
-          ".date, .dates, .event-date, time, .card-date, .training-date"
-        ).first();
-        const date = cleanText(dateEl.text());
+        // Location: .microcopy.mrgn-btm-17 (e.g. "Olteni village, rural Romania, Romania")
+        const location =
+          cleanText($el.find("p.microcopy.mrgn-btm-17").first().text()) || "Europa";
 
-        // Extract location
-        const locationEl = $el.find(
-          ".location, .venue, .country, .card-location"
-        ).first();
-        const location = cleanText(locationEl.text()) || "Europa";
+        // Deadline: inside .callout-module, the .h3 element
+        const deadline = cleanText(
+          $el.find(".callout-module .h3").first().text()
+        );
 
-        // Extract deadline
-        const deadlineEl = $el.find(".deadline, .apply-before").first();
-        const deadline = cleanText(deadlineEl.text());
-
-        // Determine category based on content
+        // Determine category
         let category: ScrapedOpportunity["category"] = "workshopuri";
-        const lowerTitle = title.toLowerCase();
         if (
-          lowerTitle.includes("seminar") ||
-          lowerTitle.includes("conference") ||
-          lowerTitle.includes("forum")
+          categoryLabel.includes("seminar") ||
+          categoryLabel.includes("conference") ||
+          categoryLabel.includes("forum") ||
+          categoryLabel.includes("youth exchange")
         ) {
-          category = "evenimente";
-        } else if (lowerTitle.includes("exchange") || lowerTitle.includes("youth exchange")) {
           category = "evenimente";
         }
 
-        // Extract tags from title keywords
+        // Tags
+        const lowerTitle = title.toLowerCase();
         const tags: string[] = ["international", "Erasmus+", "training"];
         if (lowerTitle.includes("youth")) tags.push("tineret");
         if (lowerTitle.includes("volunteer")) tags.push("voluntariat");
@@ -97,7 +93,7 @@ export const saltoYouthScraper: Scraper = {
           category,
           organization: "SALTO-YOUTH / Erasmus+",
           location,
-          date: date || undefined,
+          date: dateText || undefined,
           deadline: deadline || undefined,
           ageRange: "18-30 ani",
           tags,

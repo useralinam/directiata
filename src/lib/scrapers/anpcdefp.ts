@@ -4,8 +4,8 @@ import { fetchPage, cleanText, truncate } from "./utils";
 
 /**
  * ANPCDEFP scraper — Romanian National Agency for Erasmus+ and ESC.
- * Scrapes events, news, and opportunities.
- * Source: https://www.anpcdefp.ro
+ * Scrapes events from the /evenimente page which uses .C_Event divs.
+ * Source: https://www.anpcdefp.ro/evenimente
  */
 export const anpcdefpScraper: Scraper = {
   name: "ANPCDEFP (Erasmus+ Romania)",
@@ -14,111 +14,95 @@ export const anpcdefpScraper: Scraper = {
   async run(): Promise<ScrapedOpportunity[]> {
     const opportunities: ScrapedOpportunity[] = [];
     const baseUrl = "https://www.anpcdefp.ro";
+    const eventsUrl = `${baseUrl}/evenimente`;
 
-    // Scan events and news pages
-    const pages = [
-      `${baseUrl}/evenimente`,
-      `${baseUrl}/stiri`,
-      `${baseUrl}/erasmusplus/tineret`,
-    ];
+    const html = await fetchPage(eventsUrl);
+    const $ = cheerio.load(html);
 
-    for (const pageUrl of pages) {
+    // Each event is a div.C_Event
+    const items = $(".C_Event");
+
+    items.each((_i, el) => {
       try {
-        const html = await fetchPage(pageUrl);
-        const $ = cheerio.load(html);
+        const $el = $(el);
 
-        // Look for event/news cards — ANPCDEFP uses various layouts
-        const items = $(
-          "article, .event-item, .news-item, .card, .listing-item, .views-row, .item-list li, .event-card"
-        );
+        // Title: .C_BoxTitle > a
+        const titleLink = $el.find(".C_BoxTitle a").first();
+        const title = cleanText(titleLink.text());
+        const href = titleLink.attr("href") || "";
 
-        items.each((_i, el) => {
-          try {
-            const $el = $(el);
+        if (!title || title.length < 8) return;
 
-            // Title
-            const titleEl = $el.find(
-              "h2 a, h3 a, h4 a, .title a, .field-title a, a.event-title"
-            ).first();
-            let title = cleanText(titleEl.text());
-            const href = titleEl.attr("href") || $el.find("a").first().attr("href");
+        // Build absolute URL (hrefs are like /evenimente-det/vrs/IDev/1894)
+        const url = href.startsWith("http") ? href : `${baseUrl}${href}`;
 
-            if (!title || title.length < 8) {
-              title = cleanText($el.find("h2, h3, h4, .title").first().text());
-              if (!title || title.length < 8) return;
-            }
+        // Period and location are in .C_BoxHalf divs
+        const boxHalves = $el.find(".C_BoxHalf");
+        let period = "";
+        let location = "Romania";
 
-            // Build URL
-            let url = "";
-            if (href) {
-              url = href.startsWith("http") ? href : `${baseUrl}${href}`;
-            }
-            if (!url) return;
-
-            // Skip nav/footer links
-            if (url === baseUrl || url === `${baseUrl}/`) return;
-
-            // Description
-            const description =
-              cleanText(
-                $el.find(".description, .summary, .teaser, p, .field-body").first().text()
-              ) || title;
-
-            // Date
-            const dateEl = $el.find(
-              ".date, time, .event-date, .field-date, .created"
-            ).first();
-            const date = cleanText(dateEl.text());
-
-            // Location
-            const locationEl = $el.find(".location, .venue, .field-location").first();
-            const location = cleanText(locationEl.text()) || "Romania";
-
-            // Category detection
-            const lower = `${title} ${description} ${pageUrl}`.toLowerCase();
-            let category: ScrapedOpportunity["category"] = "evenimente";
-            if (lower.includes("voluntar")) {
-              category = "voluntariat";
-            } else if (
-              lower.includes("finant") ||
-              lower.includes("bursa") ||
-              lower.includes("grant")
-            ) {
-              category = "burse";
-            } else if (lower.includes("training") || lower.includes("formare")) {
-              category = "workshopuri";
-            }
-
-            // Tags
-            const tags: string[] = ["Erasmus+", "ANPCDEFP"];
-            if (lower.includes("tineret") || lower.includes("youth")) tags.push("tineret");
-            if (lower.includes("solidar") || lower.includes("esc"))
-              tags.push("Corpul European de Solidaritate");
-            if (lower.includes("mobilit")) tags.push("mobilitate");
-            if (lower.includes("partener")) tags.push("parteneriate");
-
-            opportunities.push({
-              title: truncate(title, 200),
-              description: truncate(description, 500),
-              category,
-              organization: "ANPCDEFP",
-              location,
-              date: date || undefined,
-              ageRange: "14-30 ani",
-              tags,
-              isFree: true,
-              url,
-              source: "anpcdefp.ro",
-              difficulty: "mediu",
-            });
-          } catch {
-            // Skip items that fail
+        boxHalves.each((_j, half) => {
+          const text = cleanText($(half).text());
+          // Period usually starts with "Perioadă" or contains date patterns
+          if (text.toLowerCase().includes("perioad") || text.match(/\d{2}\.\d{2}\.\d{4}/)) {
+            period = text.replace(/^Perioad[aă]:\s*/i, "");
+          }
+          // Location usually starts with "Locul desfășurării" or "Loc"
+          if (text.toLowerCase().includes("loc")) {
+            location = text.replace(/^Locul\s+desf[aă][sș]ur[aă]rii:\s*/i, "").replace(/^Loc:\s*/i, "") || "Romania";
           }
         });
-      } catch (err) {
-        console.error(`ANPCDEFP scraper error for ${pageUrl}:`, err);
+
+        // Deadline: .C_BoxTerm
+        const deadlineText = cleanText($el.find(".C_BoxTerm").first().text());
+        const deadline = deadlineText.replace(/^Termen\s+[^\d]*/i, "");
+
+        // Organizer: .C_BoxFull that contains "Organizator"
+        let organizer = "ANPCDEFP";
+        $el.find(".C_BoxFull").each((_j, box) => {
+          const text = cleanText($(box).text());
+          if (text.toLowerCase().includes("organizator")) {
+            organizer = text.replace(/^Organizator:\s*/i, "") || "ANPCDEFP";
+          }
+        });
+
+        // Category detection
+        const lower = title.toLowerCase();
+        let category: ScrapedOpportunity["category"] = "evenimente";
+        if (lower.includes("voluntar")) {
+          category = "voluntariat";
+        } else if (lower.includes("training") || lower.includes("formare")) {
+          category = "workshopuri";
+        } else if (lower.includes("bursa") || lower.includes("grant") || lower.includes("finant")) {
+          category = "burse";
+        }
+
+        // Tags
+        const tags: string[] = ["Erasmus+", "ANPCDEFP"];
+        if (lower.includes("tineret") || lower.includes("youth")) tags.push("tineret");
+        if (lower.includes("solidar") || lower.includes("esc"))
+          tags.push("Corpul European de Solidaritate");
+        if (lower.includes("mobilit")) tags.push("mobilitate");
+
+        opportunities.push({
+          title: truncate(title, 200),
+          description: truncate(title, 500), // Events page has no separate description
+          category,
+          organization: organizer,
+          location,
+          date: period || undefined,
+          deadline: deadline || undefined,
+          ageRange: "14-30 ani",
+          tags,
+          isFree: true,
+          url,
+          source: "anpcdefp.ro",
+          difficulty: "mediu",
+        });
+      } catch {
+        // Skip items that fail
       }
-    }
+    });
 
     return opportunities;
   },
